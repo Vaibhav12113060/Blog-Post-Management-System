@@ -1,6 +1,8 @@
 const Blog = require("../models/blogModel");
 const User = require("../models/userModel");
 
+const { Parser } = require("json2csv");
+
 // --- CREATE POST (With Automatic User Info) ---
 exports.createBlog = async (req, res) => {
   try {
@@ -74,23 +76,35 @@ exports.updateBlog = async (req, res) => {
 exports.getBlogs = async (req, res) => {
   try {
     const { page = 1, limit = 5, search, category, status } = req.query;
+
     let query = {};
 
+    //  SEARCH Logic
     if (search) {
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { authorName: { $regex: search, $options: "i" } }, // Updated field name
-        { category: { $regex: search, $options: "i" } },
+        { title: { $regex: search, $options: "i" } }, // Title match
+        { authorName: { $regex: search, $options: "i" } }, // Author match
+        { tags: { $regex: search, $options: "i" } }, // Tags match
       ];
     }
-    if (category && category !== "All Categories") query.category = category;
-    if (status && status !== "All Status") query.status = status;
 
+    //  CATEGORY Logic
+    if (category && category !== "All Categories") {
+      query.category = category;
+    }
+
+    //  STATUS Logic
+    if (status && status !== "All Status") {
+      query.status = status;
+    }
+
+    //  DB Query Execute (with Pagination)
     const blogs = await Blog.find(query)
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 });
 
+    // Total count for frontend pagination
     const total = await Blog.countDocuments(query);
 
     res.status(200).json({
@@ -114,7 +128,7 @@ exports.deleteBlog = async (req, res) => {
 
     if (!blog) return res.status(404).json({ message: "Post not found" });
 
-    // 3. CHECK OWNERSHIP: Delete karne se pehle verify karo
+    //  CHECK OWNERSHIP
     if (blog.authorId.toString() !== req.user.toString()) {
       return res.status(403).json({
         success: false,
@@ -129,7 +143,7 @@ exports.deleteBlog = async (req, res) => {
   }
 };
 
-// getBlogById as it is rahega
+// getBlogById
 exports.getBlogById = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
@@ -137,5 +151,63 @@ exports.getBlogById = async (req, res) => {
     res.status(200).json({ success: true, data: blog });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+// --- EXPORT TO CSV API ---
+exports.exportToCSV = async (req, res) => {
+  try {
+    const { search, category, status } = req.query;
+    let query = {};
+
+    //  Search Filter
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { authorName: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    //  Category Filter
+    if (category && category !== "All Categories") {
+      query.category = category;
+    }
+
+    //  Status Filter
+    if (status && status !== "All Status") {
+      query.status = status;
+    }
+
+    const blogs = await Blog.find(query).sort({ createdAt: -1 });
+
+    if (blogs.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No blogs found for the selected filters",
+      });
+    }
+
+    // 6. CSV Fields setup
+    const fields = [
+      { label: "Blog Title", value: "title" },
+      { label: "Category", value: "category" },
+      { label: "Author", value: "authorName" },
+      { label: "Status", value: "status" },
+      {
+        label: "Created At",
+        value: (row) => new Date(row.createdAt).toLocaleDateString(),
+      },
+    ];
+
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(blogs);
+
+    // 7. Response bhej do
+    res.header("Content-Type", "text/csv");
+    res.attachment(`Blog_Export_${Date.now()}.csv`);
+    return res.status(200).send(csv);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 };

@@ -7,8 +7,12 @@ const {
   updateBlog,
   getBlogs,
   getBlogById,
-  deleteBlog, // Ye controller add kar lena export ke liye
+  deleteBlog,
+  exportToCSV,
 } = require("../controllers/blogController");
+
+// Blog Routes mein add kar:
+router.get("/export-csv", protect, exportToCSV);
 
 // --- Public Routes ---
 router.get("/", getBlogs); // Listing with Search/Pagination
