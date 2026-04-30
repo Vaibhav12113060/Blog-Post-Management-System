@@ -3,18 +3,14 @@ import { authSchema } from "../utils/validationSchema";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/authApi";
 import { useState } from "react";
+import Logo from "../components/Logo"; // ✅ Added Logo
 
 const Register = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+    initialValues: { name: "", email: "", password: "", confirmPassword: "" },
     validationSchema: authSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setErrorMessage("");
@@ -46,24 +42,27 @@ const Register = () => {
   `;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9] py-12 px-4 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9] py-12 px-4 font-sans text-center">
       <div className="max-w-md w-full space-y-6 md:space-y-8 bg-white p-6 md:p-10 rounded-[2rem] shadow-2xl border border-gray-100">
-        <div className="text-center">
-          <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">
-            Create Account
-          </h2>
-          <p className="mt-2 text-sm text-slate-500 font-medium">
-            Join BlogFlow to manage your content professionally
-          </p>
+        {/* ✅ Logo Rendered Here */}
+        <div className="flex justify-center">
+          <Logo size="text-4xl" />
         </div>
 
+        <p className="mt-2 text-sm text-slate-500 font-medium">
+          Join VaiBlog to manage your content professionally
+        </p>
+
         {errorMessage && (
-          <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-[10px] font-bold uppercase tracking-tight">
+          <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-[10px] font-bold uppercase tracking-tight text-left">
             {errorMessage}
           </div>
         )}
 
-        <form className="mt-8 space-y-4" onSubmit={formik.handleSubmit}>
+        <form
+          className="mt-8 space-y-4 text-left"
+          onSubmit={formik.handleSubmit}
+        >
           <div>
             <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
               Full Name
@@ -100,7 +99,6 @@ const Register = () => {
             )}
           </div>
 
-          {/* Responsive Grid for Passwords */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">

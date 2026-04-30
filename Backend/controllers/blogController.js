@@ -44,7 +44,7 @@ exports.updateBlog = async (req, res) => {
     if (!blog) return res.status(404).json({ message: "Post not found" });
 
     // 2. CHECK OWNERSHIP: Kya ye blog isi user ka hai?
-    if (blog.authorId.toString() !== req.user.toString()) {
+    if (blog.authorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized: You can only edit your own posts.",
@@ -53,6 +53,8 @@ exports.updateBlog = async (req, res) => {
 
     if (req.file) {
       updateData.thumbnail = req.file.path;
+    } else {
+      delete updateData.thumbnail;
     }
 
     if (updateData.tags && typeof updateData.tags === "string") {
@@ -129,7 +131,7 @@ exports.deleteBlog = async (req, res) => {
     if (!blog) return res.status(404).json({ message: "Post not found" });
 
     //  CHECK OWNERSHIP
-    if (blog.authorId.toString() !== req.user.toString()) {
+    if (blog.authorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized: You can only delete your own posts.",

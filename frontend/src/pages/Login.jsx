@@ -3,16 +3,14 @@ import { authSchema } from "../utils/validationSchema";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { useState } from "react";
+import Logo from "../components/Logo"; // ✅ Added Logo
 
 const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
+    initialValues: { email: "", password: "" },
     validationSchema: authSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setErrorMessage("");
@@ -46,23 +44,23 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9] font-sans px-4 py-8">
-      <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-md border border-gray-100">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">
-            Sign In
-          </h2>
-          <p className="text-slate-500 mt-2 font-medium text-sm">
-            Access your Blog Management Dashboard
-          </p>
+      <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-md border border-gray-100 text-center">
+        {/* ✅ Logo Rendered Here */}
+        <div className="flex justify-center mb-8">
+          <Logo size="text-4xl" />
         </div>
 
+        <p className="text-slate-500 mb-8 font-medium text-sm">
+          Access your content dashboard
+        </p>
+
         {errorMessage && (
-          <div className="mb-6 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-[10px] font-bold uppercase tracking-tight">
+          <div className="mb-6 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-[10px] font-bold uppercase tracking-tight text-left">
             {errorMessage}
           </div>
         )}
 
-        <form onSubmit={formik.handleSubmit} className="space-y-5">
+        <form onSubmit={formik.handleSubmit} className="space-y-5 text-left">
           <div>
             <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
               Email Address

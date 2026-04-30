@@ -47,11 +47,13 @@ export const blogSchema = Yup.object().shape({
     .test(
       "fileFormat",
       "Unsupported Format! Only JPG, JPEG, PNG, WEBP, and GIF are allowed.",
-      (value) => !value || (value && SUPPORTED_FORMATS.includes(value.type)),
+      (value) => {
+        if (!value || typeof value === "string") return true; // Allow no file or existing URL
+        return value && SUPPORTED_FORMATS.includes(value.type);
+      },
     )
-    .test(
-      "fileSize",
-      "File is too large! Maximum limit is 2MB.",
-      (value) => !value || (value && value.size <= FILE_SIZE),
-    ),
+    .test("fileSize", "File is too large! Maximum limit is 2MB.", (value) => {
+      if (!value || typeof value === "string") return true; // Allow no file or existing URL
+      return value && value.size <= FILE_SIZE;
+    }),
 });

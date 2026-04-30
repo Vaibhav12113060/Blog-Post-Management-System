@@ -9,7 +9,7 @@ const BlogRow = ({ blog, idx, page, currentUserId, refetch, totalRows }) => {
     currentUserId && ownerId && ownerId.toString() === currentUserId;
 
   const handleDelete = async () => {
-    if (window.confirm("Delete karu?")) {
+    if (window.confirm("Delete this item?")) {
       await API.delete(`/blog/${blog._id}`);
       refetch();
     }

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import { blogSchema } from "../utils/validationSchema";
 import API from "../api/axiosInstance";
+import Logo from "../components/Logo"; // ✅ Added Logo
 
 const BlogForm = ({ mode = "create" }) => {
   const { id } = useParams();
@@ -28,12 +29,12 @@ const BlogForm = ({ mode = "create" }) => {
       const data = new FormData();
       Object.keys(values).forEach((key) => {
         if (key === "thumbnail") {
-          if (values[key]) data.append("thumbnail", values[key]);
+          if (values[key] instanceof File)
+            data.append("thumbnail", values[key]);
         } else {
           data.append(key, values[key]);
         }
       });
-
       try {
         mode === "create"
           ? await API.post("/blog", data)
@@ -91,28 +92,30 @@ const BlogForm = ({ mode = "create" }) => {
     "text-red-500 text-[9px] md:text-[10px] font-bold uppercase ml-2 mt-1 tracking-tight";
 
   return (
-    <div className="min-h-screen bg-[#CBD5E1] py-6 md:py-10 px-3 md:px-4 font-sans">
+    <div className="min-h-screen bg-[#CBD5E1] py-6 md:py-10 px-3 md:px-4 font-sans text-slate-900">
       <div className="max-w-3xl mx-auto">
-        <button
-          type="button"
-          onClick={() => navigate("/dashboard")}
-          className="mb-6 flex items-center gap-2 text-slate-600 hover:text-indigo-700 font-bold text-[10px] md:text-xs bg-white/80 px-4 md:px-5 py-2 md:py-2.5 rounded-xl border border-slate-300 transition-all shadow-sm"
-        >
-          ← <span className="hidden sm:inline">Back to Dashboard</span>
-          <span className="sm:hidden">Back</span>
-        </button>
+        <div className="flex justify-between items-center mb-6 px-2">
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-2 text-slate-600 hover:text-indigo-700 font-bold text-[10px] md:text-xs bg-white/80 px-4 md:px-5 py-2 md:py-2.5 rounded-xl border border-slate-300 transition-all shadow-sm active:scale-95"
+          >
+            ← Back
+          </button>
+          <Logo size="text-xl md:text-2xl" />
+        </div>
 
         <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden">
           <div className="p-6 md:p-10 text-center border-b border-slate-100 bg-slate-50/50">
-            <h2 className="text-xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter italic">
+            <h2 className="text-xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter">
               {mode === "create" ? "Post new Blog" : "Update Blog Post"}
             </h2>
           </div>
-
           <form
             onSubmit={formik.handleSubmit}
             className="p-6 md:p-10 space-y-6 md:space-y-8"
           >
+            {/* Form Fields... (No changes to fields) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="md:col-span-2">
                 <label className={labelStyle}>Post Title *</label>
@@ -125,7 +128,6 @@ const BlogForm = ({ mode = "create" }) => {
                   <p className={errorTextStyle}>{formik.errors.title}</p>
                 )}
               </div>
-
               <div>
                 <label className={labelStyle}>Author Name</label>
                 <input
@@ -134,7 +136,6 @@ const BlogForm = ({ mode = "create" }) => {
                   readOnly
                 />
               </div>
-
               <div>
                 <label className={labelStyle}>Author Email</label>
                 <input
@@ -143,8 +144,6 @@ const BlogForm = ({ mode = "create" }) => {
                   readOnly
                 />
               </div>
-
-              {/* Responsive Dropdowns */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:col-span-2">
                 <div>
                   <label className={labelStyle}>Category *</label>
@@ -190,9 +189,31 @@ const BlogForm = ({ mode = "create" }) => {
                   )}
                 </div>
               </div>
-
+              <div className="md:col-span-2">
+                <label className={labelStyle}>Tags (comma separated)</label>
+                <input
+                  name="tags"
+                  placeholder="react, node, fullstack"
+                  className={`${inputStyle} border-slate-200`}
+                  {...formik.getFieldProps("tags")}
+                />
+              </div>
               <div className="md:col-span-2">
                 <label className={labelStyle}>Thumbnail (Max 2MB)</label>
+                {mode === "edit" &&
+                  formik.values.thumbnail &&
+                  typeof formik.values.thumbnail === "string" && (
+                    <div className="mb-3">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">
+                        Current Thumbnail:
+                      </p>
+                      <img
+                        src={formik.values.thumbnail}
+                        alt="Current"
+                        className="w-32 h-20 object-cover rounded-xl border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
                 <input
                   type="file"
                   name="thumbnail"
@@ -202,12 +223,16 @@ const BlogForm = ({ mode = "create" }) => {
                     formik.setFieldValue("thumbnail", e.currentTarget.files[0])
                   }
                 />
+                <p className="text-[9px] text-slate-400 mt-1 ml-1 italic">
+                  {mode === "edit"
+                    ? "* Leave empty to keep existing image"
+                    : "* Please upload a blog thumbnail"}
+                </p>
                 {formik.touched.thumbnail && formik.errors.thumbnail && (
                   <p className={errorTextStyle}>{formik.errors.thumbnail}</p>
                 )}
               </div>
             </div>
-
             <textarea
               name="shortDescription"
               className={`${inputStyle} h-24 md:h-28 resize-none`}
@@ -220,14 +245,17 @@ const BlogForm = ({ mode = "create" }) => {
               placeholder="Content"
               {...formik.getFieldProps("content")}
             />
-
             <div className="flex justify-center md:justify-end pt-6 border-t border-slate-100">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full md:w-auto px-12 py-3.5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:bg-indigo-700 transition-all active:scale-95 text-sm uppercase"
+                className="w-full md:w-auto px-12 py-3.5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:bg-indigo-700 transition-all active:scale-95 text-sm uppercase tracking-wider"
               >
-                {loading ? "SAVING..." : "Publish Blog"}
+                {loading
+                  ? "SAVING..."
+                  : mode === "create"
+                    ? "Publish Blog"
+                    : "Update Post"}
               </button>
             </div>
           </form>
