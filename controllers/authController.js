@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    // 2. Create User (password hashing model middleware handle kar lega)
+    // 2. Create User
     const user = await User.create({ name, email, password });
 
     // 3. Generate Token
@@ -73,5 +73,20 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.getUserProfile = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: req.user._id, // YE SABSE ZAROORI HAI
+        name: req.user.name,
+        email: req.user.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false });
   }
 };

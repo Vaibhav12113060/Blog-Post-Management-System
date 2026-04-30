@@ -11,10 +11,26 @@ connectDB();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173", // Local Vite
+  "http://192.168.0.106:5173",
+];
+
 // Middlewares
 app.use(
   cors({
-    origin: "*",
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        // Agar origin whitelist mein hai, toh allow
+        callback(null, true);
+      } else {
+        // Agar nahi hai, toh block
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
