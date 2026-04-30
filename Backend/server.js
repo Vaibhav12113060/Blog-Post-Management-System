@@ -14,6 +14,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // Local Vite
   "http://192.168.0.106:5173",
+  process.env.FRONTEND_URL,
 ];
 
 // Middlewares
