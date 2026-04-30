@@ -48,7 +48,6 @@ const ActionsDropdown = ({ blogId, isOwner, onDelete }) => {
       <button
         ref={btnRef}
         onClick={toggleDropdown}
-        // Mobile par touch target bada karne ke liye p-3 diya hai
         className="p-3 md:p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors active:bg-slate-200"
         aria-label="Actions"
       >
@@ -58,7 +57,6 @@ const ActionsDropdown = ({ blogId, isOwner, onDelete }) => {
       {open &&
         createPortal(
           <div
-            // Mobile-friendly styles: larger font and more padding
             className="absolute w-40 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[99999] overflow-hidden animate-in fade-in zoom-in duration-100"
             style={{ top: pos.top, left: pos.left }}
           >

@@ -1,13 +1,19 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+const ProtectedRoute = () => {
+  const { user, loading } = useAuth();
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
+  if (loading) {
+    // You can show a loading spinner here
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
-  return children;
+  return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

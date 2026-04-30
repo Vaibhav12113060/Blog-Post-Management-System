@@ -11,7 +11,7 @@ const {
   exportToCSV,
 } = require("../controllers/blogController");
 
-// Blog Routes mein add kar:
+// Export to CSV route
 router.get("/export-csv", protect, exportToCSV);
 
 // --- Public Routes ---

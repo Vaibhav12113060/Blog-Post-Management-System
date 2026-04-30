@@ -1,65 +1,35 @@
 import { useState } from "react";
 import "./App.css";
 
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import Login from "./pages/Login";
+import { Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./pages/Login"; // Corrected import name
 import Dashboard from "./pages/Dashboard";
-import Register from "./pages/Register";
-import BlogForm from "./pages/BlogForm";
-import ViewBlog from "./pages/ViewBlog";
+import RegisterPage from "./pages/Register"; // Corrected import name
+import BlogFormPage from "./pages/BlogForm"; // Renamed for clarity
+import ViewBlogPage from "./pages/ViewBlog"; // Corrected import name
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Protected routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/create-post"
-          element={
-            <ProtectedRoute>
-              <BlogForm mode="create" />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/edit/:id"
-          element={
-            <ProtectedRoute>
-              <BlogForm mode="edit" />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/view/:id"
-          element={
-            <ProtectedRoute>
-              <ViewBlog />
-            </ProtectedRoute>
-          }
-        />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      {/* ViewBlog can be public or protected. Assuming it's public for general viewing. */}
+      <Route path="/view/:id" element={<ViewBlogPage />} />
 
-        {/* public routes  */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Protected Routes - All routes nested here will use the ProtectedRoute logic */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/create-post" element={<BlogFormPage mode="create" />} />
+        <Route path="/edit/:id" element={<BlogFormPage mode="edit" />} />
+        {/* If ViewBlog also needs to be protected, move it here: */}
+        {/* <Route path="/view/:id" element={<ViewBlogPage />} /> */}
+      </Route>
 
-        {/* Root path logic */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+      {/* Root path redirects to dashboard (or login if not authenticated) */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }
 

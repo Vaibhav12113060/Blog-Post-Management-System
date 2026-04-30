@@ -3,11 +3,13 @@ import { authSchema } from "../utils/validationSchema";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo"; // ✅ Added Logo
 
 const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
@@ -19,8 +21,7 @@ const Login = () => {
           email: values.email,
           password: values.password,
         });
-        localStorage.setItem("token", data.token);
-        navigate("/dashboard");
+        login(data.user, data.token);
       } catch (error) {
         const status = error.response?.status;
         if (status === 401)

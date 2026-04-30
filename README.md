@@ -148,9 +148,9 @@ Create and edit posts using a clean form with rich text capabilities and smart v
 
 A professional and secure sign-in/sign-up flow to protect user accounts.
 
-![Authentication](./Public/LoginPage.png)
+![Login Page](./Public/LoginPage.png)
 
-![Authentication](./Public/Register.png)
+![Register Page](./Public/Register.png)
 
 ---
 

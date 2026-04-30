@@ -6,15 +6,15 @@ const { Parser } = require("json2csv");
 // --- CREATE POST (With Automatic User Info) ---
 exports.createBlog = async (req, res) => {
   try {
-    // 1. Logged in user ki details fetch karo
+    // 1. Fetch details of the logged-in user
     const user = await User.findById(req.user);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const data = {
       ...req.body,
-      authorId: user._id, // Automatic
-      authorName: user.name, // Automatic
-      authorEmail: user.email, // Automatic
+      authorId: user._id,
+      authorName: user.name,
+      authorEmail: user.email,
     };
 
     if (req.file) {
@@ -43,7 +43,7 @@ exports.updateBlog = async (req, res) => {
     let blog = await Blog.findById(id);
     if (!blog) return res.status(404).json({ message: "Post not found" });
 
-    // 2. CHECK OWNERSHIP: Kya ye blog isi user ka hai?
+    // 2. CHECK OWNERSHIP: Does this blog belong to the current user?
     if (blog.authorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -190,7 +190,7 @@ exports.exportToCSV = async (req, res) => {
       });
     }
 
-    // 6. CSV Fields setup
+    // Setup CSV Fields
     const fields = [
       { label: "Blog Title", value: "title" },
       { label: "Category", value: "category" },
@@ -205,7 +205,7 @@ exports.exportToCSV = async (req, res) => {
     const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(blogs);
 
-    // 7. Response bhej do
+    // Send the response
     res.header("Content-Type", "text/csv");
     res.attachment(`Blog_Export_${Date.now()}.csv`);
     return res.status(200).send(csv);
